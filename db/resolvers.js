@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Master = require('../models/Master');
 const Civilian = require('../models/Civilian');
 const Sensei = require('../models/Sensei');
+const Karateka = require('../models/Karateka');
 const bcryptjs = require('bcryptjs');
 require('dotenv').config({path: '.env'});
 const jwt = require('jsonwebtoken');
@@ -17,8 +18,29 @@ const resolvers = {
   Query: {
     getUser: async (_, {token}) => {
       const usuarioId = await jwt.verify(token, process.env.SECRETA)
+      console.log(usuarioId);
       return usuarioId;
+    },
+
+    getNumberOfKaratekas: async (_, {}, ctx) => {
+      try{
+        const numberOfKaratekas = await (await Karateka.find({owner: ctx.user.id})).length;
+        return(numberOfKaratekas);
+      }catch(err){
+        console.log(err);
+      }
+    },
+
+    getNumberOfCivilians: async (_, {}) => {
+      const numberOfCivilians = await Civilian.countDocuments();
+      return numberOfCivilians;
+    },
+
+    getNumberOfMasters: async (_, {}) => {
+      const numberOfMasters = await Master.countDocuments();
+      return numberOfMasters;
     }
+
   },
 
   Mutation: {
@@ -218,13 +240,71 @@ const resolvers = {
       }
     },
 
-    newSensei: async (_, {input}) => {
-      try{
-        const sensei = new Sensei(input);
-        const resultado = await sensei.save();
-        return sensei;
-      }catch(err){
-       console.log(err); 
+    newSensei: async (_, {input}, ctx) => {
+      const user = await User.findOne({_id: ctx.user.id});
+      
+      console.log(user);
+      console.log(user._id);
+      
+      const senseiExiste = await Sensei.findOne({owner: user.id})
+      if(!senseiExiste){
+        const master = await Master.findOne();
+        try{
+          const sensei = () => {
+            name = master.name;
+            genre = master.genre;
+            solvency = master.solvency;
+            nature = master.nature;
+            level = master.level;
+            strength = master.strength;
+            dexterity = master.dexterity;
+            stamina = master.stamina;
+            mana = master.mana;
+            standing = master.standing;
+            imageUrl = master.imageUrl;
+            owner = user._id
+            
+            const newSensei = new Sensei({
+              name: name,
+              genre: genre,
+              solvency: solvency,
+              nature: nature,
+              level: level,
+              strength: strength,
+              dexterity: dexterity,
+              stamina: stamina,
+              mana: mana,
+              standing: standing,
+              imageUrl: imageUrl,
+              owner: owner
+            })
+            return newSensei;            
+          }
+          const {name, genre, solvency, nature, level, strength, dexterity, stamina, mana, standing, imageUrl, owner} = input;
+          
+          const recruitedSensei = new Sensei(sensei());
+          const resultado = await recruitedSensei.save();
+          try{
+            await User.updateOne({_id: user.id}, {$push: {sensei: newSensei}})
+            try{
+              await Master.deleteOne({_id: master._id})
+              try{
+                await Master.countDocuments();
+                return resultado;
+              }catch(err){
+                throw new Error('Error upgrade number of masters');
+              }
+            }catch(err){
+              throw new Error('Error deleting master', err);
+            }
+          }catch(err){
+            throw new Error('Error updating user', err);
+          }
+        }catch(err){
+         throw new Error('Error creating Sensei', err) 
+        }
+      }else{
+        throw new Error('You can only recruit one sensei');
       }
     }
   }

@@ -63,21 +63,35 @@ const typeDefs = gql`
   }
 
   input SenseiInput {
-    name: String!
-    genre: String!
-    solvency: String!
-    nature: String!
-    level: String!
-    strength: Int!
-    dexterity: Int!
-    stamina: Int!
-    mana: Int!
-    standing: Int!
-    imageUrl: String!
+    name: String
+    genre: String
+    solvency: String
+    nature: String
+    level: String
+    strength: Int
+    dexterity: Int
+    stamina: Int
+    mana: Int
+    standing: Int
+    imageUrl: String
   }
-
+  
   type Query {
+    
+    #Usuarios
     getUser(token: String!): User
+    
+    #Karatekas
+    getNumberOfKaratekas: Int
+
+    #Civilians
+    getNumberOfCivilians: Int 
+
+    #Masters
+    getNumberOfMasters: Int
+
+    #Sensei 
+
   }
   
   type Mutation {
@@ -85,9 +99,9 @@ const typeDefs = gql`
     # Usuarios
     newUser(input: UserInput): User
     authUser(input: AuthInput): Token
+    newSensei(input: SenseiInput): Sensei
 
     # Sensei
-    newSensei(input: SenseiInput): Sensei
 
     # Karateka
   }
