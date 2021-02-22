@@ -39,8 +39,13 @@ const resolvers = {
     getNumberOfMasters: async (_, {}) => {
       const numberOfMasters = await Master.countDocuments();
       return numberOfMasters;
-    }
+    },
 
+    getMaster: async (_,{}) => {
+      const master = await Master.findOne({});
+      return master;
+    }
+    
   },
 
   Mutation: {
@@ -248,41 +253,25 @@ const resolvers = {
       
       const senseiExiste = await Sensei.findOne({owner: user.id})
       if(!senseiExiste){
-        const master = await Master.findOne();
         try{
-          const sensei = () => {
-            name = master.name;
-            genre = master.genre;
-            solvency = master.solvency;
-            nature = master.nature;
-            level = master.level;
-            strength = master.strength;
-            dexterity = master.dexterity;
-            stamina = master.stamina;
-            mana = master.mana;
-            standing = master.standing;
-            imageUrl = master.imageUrl;
-            owner = user._id
-            
-            const newSensei = new Sensei({
-              name: name,
-              genre: genre,
-              solvency: solvency,
-              nature: nature,
-              level: level,
-              strength: strength,
-              dexterity: dexterity,
-              stamina: stamina,
-              mana: mana,
-              standing: standing,
-              imageUrl: imageUrl,
-              owner: owner
-            })
-            return newSensei;            
-          }
-          const {name, genre, solvency, nature, level, strength, dexterity, stamina, mana, standing, imageUrl, owner} = input;
+          const {name, genre, solvency, nature, level, strength, dexterity, stamina, mana, standing, imageUrl} = input;
+          const owner = user.id;
+          console.log(name);
           
-          const recruitedSensei = new Sensei(sensei());
+          const recruitedSensei = new Sensei({
+            name,
+            genre,
+            solvency,
+            nature,
+            level,
+            strength,
+            dexterity,
+            stamina,
+            mana,
+            standing,
+            imageUrl,
+            owner
+          });
           const resultado = await recruitedSensei.save();
           try{
             await User.updateOne({_id: user.id}, {$push: {sensei: newSensei}})

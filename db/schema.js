@@ -46,6 +46,23 @@ const typeDefs = gql`
     owner: User
   }
 
+  type Master {
+    id: ID
+    name: String
+    genre: String
+    solvency: String
+    nature: String
+    level: String
+    strength: Int
+    dexterity: Int 
+    stamina: Int 
+    mana: Int 
+    standing: Int 
+    imageUrl: String 
+    owner: User
+  }
+
+
   type Token {
     token: String
   }
@@ -89,7 +106,7 @@ const typeDefs = gql`
 
     #Masters
     getNumberOfMasters: Int
-
+    getMaster: Master
     #Sensei 
 
   }
