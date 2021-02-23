@@ -100,6 +100,7 @@ const typeDefs = gql`
     
     #Karatekas
     getNumberOfKaratekas: Int
+    getKaratekas: [Karateka]
 
     #Civilians
     getNumberOfCivilians: Int 
@@ -107,8 +108,10 @@ const typeDefs = gql`
     #Masters
     getNumberOfMasters: Int
     getMaster: Master
+    
     #Sensei 
-
+    getSensei: Sensei
+    
   }
   
   type Mutation {

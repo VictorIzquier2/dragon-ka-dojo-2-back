@@ -31,6 +31,11 @@ const resolvers = {
       }
     },
 
+    getKaratekas: async (_, {}, ctx) => {
+      const karatekas = await Karateka.find({owner: ctx.user.id});
+      return karatekas;
+    },
+
     getNumberOfCivilians: async (_, {}) => {
       const numberOfCivilians = await Civilian.countDocuments();
       return numberOfCivilians;
@@ -44,6 +49,12 @@ const resolvers = {
     getMaster: async (_,{}) => {
       const master = await Master.findOne({});
       return master;
+    },
+
+    getSensei: async (_,{}, ctx) => {
+      const user = await User.findOne({_id: ctx.user.id})
+      const sensei = await Sensei.findOne({owner: user._id});
+      return sensei;
     }
     
   },
@@ -247,10 +258,7 @@ const resolvers = {
 
     newSensei: async (_, {input}, ctx) => {
       const user = await User.findOne({_id: ctx.user.id});
-      
-      console.log(user);
-      console.log(user._id);
-      
+            
       const senseiExiste = await Sensei.findOne({owner: user.id})
       if(!senseiExiste){
         try{
